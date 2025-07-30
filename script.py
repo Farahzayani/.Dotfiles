@@ -18,16 +18,17 @@ COUNTRY_CODES = {
     "uk": "+44",
     "egypt": "+20",
     "india": "+91",
-    # add more if needed
+    # Add more as needed
 }
 
 # Read CLI arguments
-if len(sys.argv) != 3:
-    print("Usage: python script.py <country_name> <phone_number>")
+if len(sys.argv) != 4:
+    print("Usage: python script.py <country_name> <phone_number> <password>")
     sys.exit(1)
 
 country_name = sys.argv[1].lower()
 phone_number = sys.argv[2]
+password = sys.argv[3]
 
 if country_name not in COUNTRY_CODES:
     print(f"❌ Country '{country_name}' not found in database.")
@@ -49,7 +50,6 @@ options = UiAutomator2Options().load_capabilities({
 
 driver = webdriver.Remote('http://127.0.0.1:4723', options=options)
 
-# Step 1: Select Country
 def select_country():
     time.sleep(2)
     continue_button = driver.find_element(AppiumBy.XPATH, "//android.widget.Button[@text='Continue with phone number']")
@@ -57,7 +57,6 @@ def select_country():
     time.sleep(5)
     print("✅ Clicked 'Continue with phone number'")
 
-    # Locate and click the country dropdown element instead of hardcoded tap
     try:
         country_dropdown = driver.find_element(AppiumBy.XPATH, "//android.widget.TextView[@text='Country:']/following-sibling::android.view.View")
         country_dropdown.click()
@@ -68,7 +67,6 @@ def select_country():
         driver.quit()
         sys.exit(1)
 
-    # Type country name or code into the input field
     try:
         input_field = WebDriverWait(driver, 5).until(
             EC.presence_of_element_located((AppiumBy.XPATH, "//android.widget.EditText"))
@@ -77,7 +75,6 @@ def select_country():
         input_field.send_keys(country_name.capitalize())
         time.sleep(1)
 
-        # Click the matched result
         option_xpath = f"//*[@text='{country_name.capitalize()} ({country_code})']"
         option = WebDriverWait(driver, 5).until(
             EC.element_to_be_clickable((AppiumBy.XPATH, option_xpath))
@@ -90,7 +87,6 @@ def select_country():
         driver.quit()
         sys.exit(1)
 
-# Step 2: Enter phone number and submit
 def enter_phone_and_submit():
     try:
         phone_input = driver.find_element(
@@ -107,18 +103,42 @@ def enter_phone_and_submit():
         driver.quit()
         sys.exit(1)
 
-    # Submit
     try:
         submit_button = driver.find_element(AppiumBy.XPATH, '//android.widget.Button[@text="Submit"]')
         submit_button.click()
-        print("✅ Submit button clicked.")
+        print("✅ Phone number submit button clicked.")
     except Exception as e:
         print("❌ Submit button not found or not clickable.")
         print(e)
 
-# Run everything
+def enter_password_and_submit():
+    try:
+        # Wait for password input field to appear
+        password_field = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((AppiumBy.CLASS_NAME, 'android.widget.EditText'))
+        )
+        password_field.click()
+        password_field.send_keys(password)
+        print("✅ Password entered.")
+    except Exception as e:
+        print("❌ Could not find or enter password.")
+        print(e)
+        driver.quit()
+        sys.exit(1)
+
+    try:
+        submit_button = driver.find_element(AppiumBy.XPATH, '//android.widget.Button[@text="Submit"]')
+        submit_button.click()
+        print("✅ Password submit button clicked.")
+    except Exception as e:
+        print("❌ Password Submit button not found or not clickable.")
+        print(e)
+
+# Execute flow
 select_country()
 enter_phone_and_submit()
+time.sleep(5)
+enter_password_and_submit()
 
 time.sleep(2)
 driver.quit()
