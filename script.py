@@ -5,21 +5,7 @@ from appium.webdriver.common.appiumby import AppiumBy
 from appium.options.android import UiAutomator2Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-
-# Country code mapping
-COUNTRY_CODES = {
-    "tunisia": "+216",
-    "morocco": "+212",
-    "algeria": "+213",
-    "france": "+33",
-    "germany": "+49",
-    "usa": "+1",
-    "canada": "+1",
-    "uk": "+44",
-    "egypt": "+20",
-    "india": "+91",
-    # Add more as needed
-}
+from all import COUNTRY_CODES
 
 # Read CLI arguments
 if len(sys.argv) != 4:
